@@ -13,6 +13,11 @@ Found match for: aapl(e|s)*
 ```
 
 Files Included:
-1. main.cpp
-2. nfa.cpp
-3. formatter.cpp
+
+1. main.cpp: driver program for accepting regular
+expression from user and path to input file.
+
+2. nfa.cpp: class for construction NFA from regular expression
+
+3. formatter.cpp: utility functions for converting regular expressions
+into postfix notation for NFA construction
