@@ -12,15 +12,44 @@
 #include <vector>
 #include <stack>
 #include "nfa.h"
+#include <fstream>
 using namespace std;
 
 int main(int argc, const char * argv[]) {
+    
+    string to_search;
+    string exp;
+
+    std::string filename;
+    std::ifstream inFile;
+    
+    cout << "Please enter regular expression" << endl;
+    getline(cin, exp);
+    
+    std::cout << "Please enter the full path of the input file: ";
+    std::getline( std::cin, filename );
+
+    inFile.open( filename.c_str() );
+
+    if( !inFile )
+    {
+      std::cout << "Unable to open file: " << filename << std::endl;
+      return -1;
+    }
+
+    // File operations here
+    inFile >> to_search;
+    
+    inFile.close();
+    
     nfa a;
-    string exp = "(c|d)*e";
+    
     vector<Node*> n = a.create_matcher(exp);
-    cout << a.search(n, "ce") << endl;
-    cout << a.search(n, "cde") << endl;
-    cout << a.search(n, "cccdddcde") << endl;
-    cout << a.search(n, "cdcdee") << endl;
+    if (a.search(n, to_search)) {
+        cout << "Found match for: " << exp << endl;
+    }
+    else {
+        cout << "Did not find match for: " << exp << endl;
+    }
     return 0;
 }

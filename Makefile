@@ -1,0 +1,3 @@
+
+default:
+	g++ -o regex -Wall -Wextra -std=c++11 -Wc++11-extensions *.cpp

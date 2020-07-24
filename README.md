@@ -4,14 +4,12 @@ Regular expression engine implementation in C++ that supports
 concatenation, union, and closure operations. Constructs NFA from a
 regular expression.
 
+Example usage:
 ```cpp
-nfa a;
-string exp = "(c|d)*e";
-vector<Node*> n = a.create_matcher(exp);
-cout << a.search(n, "ce") << endl;
-cout << a.search(n, "cde") << endl;
-cout << a.search(n, "cccdddcde") << endl;
-cout << a.search(n, "cdcdee") << endl;
+Please enter regular expression
+aapl(e|s)*
+Please enter the full path of the input file: /Users/andrewchang/Desktop/cs111/regex/regex/input_file.txt
+Found match for: aapl(e|s)*
 ```
 
 Files Included:
