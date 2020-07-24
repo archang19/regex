@@ -8,7 +8,7 @@ Example usage:
 ```cpp
 Please enter regular expression
 aapl(e|s)*
-Please enter the full path of the input file: /Users/andrewchang/Desktop/cs111/regex/regex/input_file.txt
+Please enter the full path of the input file: /Users/andrewchang/Desktop/cs_projects/regex/regex/input_file.txt
 Found match for: aapl(e|s)*
 ```
 
