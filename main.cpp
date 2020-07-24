@@ -42,10 +42,10 @@ int main(int argc, const char * argv[]) {
     
     inFile.close();
     
-    nfa a;
+    nfa a(exp);
     
-    vector<Node*> n = a.create_matcher(exp);
-    if (a.search(n, to_search)) {
+
+    if (a.search(to_search)) {
         cout << "Found match for: " << exp << endl;
     }
     else {

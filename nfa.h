@@ -16,33 +16,41 @@
 
 
 
-struct Node
+struct node
 {
-    Node (bool end) {
+    node (bool end) {
         m_end = end;
     }
     bool m_end;
-    std::unordered_map<char, Node*> edges;
-    std::unordered_set<Node*> epsilon_edges;
+    std::unordered_map<char, node*> edges;
+    std::unordered_set<node*> epsilon_edges;
 };
 
-struct nfa
+class nfa
 {
-    void create_transition (Node* source, Node* destination, char transition);
-    void create_eps_transition (Node* source, Node* destination);
-    std::vector<Node*> create_matcher (std::string exp);
-    std::vector<Node*> build_eps_nfa ();
-    std::vector<Node*> build_nfa (char transition);
-    std::vector<Node*> concat_op (std::vector<Node*> one, std::vector<Node*> two);
-    std::vector<Node*> union_op (std::vector<Node*> one, std::vector<Node*> two);
-    std::vector<Node*> closure_op (std::vector<Node*> cur);
-    std::vector<Node*> zero_plus_op (std::vector<Node*> cur);
-    std::vector<Node*> one_plus_op (std::vector<Node*> cur);
+    
+public:
+    nfa(std::string exp);
+    ~nfa();
+    void create_transition (node* source, node* destination, char transition);
+    void create_eps_transition (node* source, node* destination);
+    std::vector<node*> create_matcher (std::string exp);
+    std::vector<node*> build_eps_nfa ();
+    std::vector<node*> build_nfa (char transition);
+    std::vector<node*> concat_op (std::vector<node*> one, std::vector<node*> two);
+    std::vector<node*> union_op (std::vector<node*> one, std::vector<node*> two);
+    std::vector<node*> closure_op (std::vector<node*> cur);
+    std::vector<node*> zero_plus_op (std::vector<node*> cur);
+    std::vector<node*> one_plus_op (std::vector<node*> cur);
 
-    std::vector<Node*> str_to_nfa (std::string s);
+    std::vector<node*> str_to_nfa (std::string s);
 
-    void add_next_state (Node* state, std::vector<Node*>& next_states, std::unordered_set<Node*>& visited);
-    bool search (std::vector<Node*> nfa, std::string word);
+    void add_next_state (node* state, std::vector<node*>& next_states, std::unordered_set<node*>& visited);
+    bool search (std::string word);
+
+private:
+    std::vector<node*> m_nodes;
+    std::vector<node*> m_master;
 };
 
 #endif /* nfa_h */

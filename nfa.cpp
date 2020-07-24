@@ -11,46 +11,77 @@
 #include <stack>
 using namespace std;
 
-void nfa::create_transition (Node* source, Node* destination, char transition) {
+
+
+
+nfa::nfa(string exp) {
+    m_master.push_back(nullptr);
+    m_master.push_back(nullptr);
+    create_matcher(exp);
+}
+
+nfa::~nfa() {
+    for (int i = 0; i < m_nodes.size(); i++) {
+        if (m_nodes[i] != nullptr) {
+             free(m_nodes[i]);
+        }
+    }
+}
+
+void nfa::create_transition (node* source, node* destination, char transition) {
     source->edges[transition] = destination;
 }
 
-void nfa::create_eps_transition (Node* source, Node* destination) {
+void nfa::create_eps_transition (node* source, node* destination) {
     source->epsilon_edges.insert(destination);
 }
 
-vector<Node*> nfa::create_matcher (string exp) {
+vector<node*> nfa::create_matcher (string exp) {
     string post_fix_exp = to_post_fix(insert_explicit_concat_operator(exp));
     return str_to_nfa(post_fix_exp);
 }
 
-vector<Node*> nfa::build_eps_nfa ()
+vector<node*> nfa::build_eps_nfa ()
 {
-    Node* s = new Node(false);
-    Node* d = new Node(true);
+    node* s = new node(false);
+    node* d = new node(true);
+    m_nodes.push_back(s);
+    m_nodes.push_back(d);
     create_eps_transition(s, d);
-    return {s, d};
+    m_master[0] = s;
+    m_master[1] = d;
+    return m_master;
 }
 
-vector<Node*> nfa::build_nfa (char transition)
+vector<node*> nfa::build_nfa (char transition)
 {
-    Node* s = new Node(false);
-    Node* d = new Node(true);
+    node* s = new node(false);
+    node* d = new node(true);
+    m_nodes.push_back(s);
+    m_nodes.push_back(d);
     create_transition(s, d, transition);
-    return {s, d};
+    m_master[0] = s;
+    m_master[1] = d;
+    return m_master;
 }
 
-vector<Node*> nfa::concat_op (vector<Node*> one, vector<Node*> two)
+vector<node*> nfa::concat_op (vector<node*> one, vector<node*> two)
 {
     one[1]->m_end = false;
     create_eps_transition(one[1], two[0]);
-    return {one[0], two[1]};
+    
+    m_master[0] = one[0];
+    m_master[1] = two[1];
+    return m_master;
 }
 
-vector<Node*> nfa::union_op (vector<Node*> one, vector<Node*> two)
+vector<node*> nfa::union_op (vector<node*> one, vector<node*> two)
 {
-    Node* new_start = new Node(false);
-    Node* new_end = new Node(true);
+    node* new_start = new node(false);
+    node* new_end = new node(true);
+    m_nodes.push_back(new_start);
+    m_nodes.push_back(new_end);
+    
     create_eps_transition(new_start, one[0]);
     create_eps_transition(new_start, two[0]);
     create_eps_transition(one[1], new_end);
@@ -59,13 +90,17 @@ vector<Node*> nfa::union_op (vector<Node*> one, vector<Node*> two)
     one[1]->m_end = false;
     two[1]->m_end = false;
 
-    return {new_start, new_end};
+    m_master[0] = new_start;
+    m_master[1] = new_end;
+    return m_master;
 }
 
-vector<Node*> nfa::closure_op (vector<Node*> cur)
+vector<node*> nfa::closure_op (vector<node*> cur)
 {
-    Node* new_start = new Node(false);
-    Node* new_end = new Node(true);
+    node* new_start = new node(false);
+    node* new_end = new node(true);
+    m_nodes.push_back(new_start);
+    m_nodes.push_back(new_end);
     
     create_eps_transition(new_start, new_end);
     create_eps_transition(new_start, cur[0]);
@@ -74,68 +109,85 @@ vector<Node*> nfa::closure_op (vector<Node*> cur)
     create_eps_transition(cur[1], cur[0]);
     cur[1]->m_end = false;
     
-    return {new_start, new_end};
+    m_master[0] = new_start;
+    m_master[1] = new_end;
+    return m_master;
 }
 
 
-vector<Node*> nfa::zero_plus_op (vector<Node*> cur)
+vector<node*> nfa::zero_plus_op (vector<node*> cur)
 {
-    Node* new_start = new Node(false);
-    Node* new_end = new Node(true);
+    node* new_start = new node(false);
+    node* new_end = new node(true);
+    
+    m_nodes.push_back(new_start);
+    m_nodes.push_back(new_end);
+    
     create_eps_transition(new_start, new_end);
     create_eps_transition(new_start, cur[0]);
     create_eps_transition(cur[1], new_end);
+    
     cur[1]->m_end = false;
-    return {new_start, new_end};
+    m_master[0] = new_start;
+    m_master[1] = new_end;
+    return m_master;
 }
 
-vector<Node*> nfa::one_plus_op (vector<Node*> cur)
+vector<node*> nfa::one_plus_op (vector<node*> cur)
 {
-    Node* new_start = new Node(false);
-    Node* new_end = new Node(true);
+    node* new_start = new node(false);
+    node* new_end = new node(true);
+    
+    m_nodes.push_back(new_start);
+    m_nodes.push_back(new_end);
+    
     create_eps_transition(new_start, cur[0]);
     create_eps_transition(cur[1], new_end);
     create_eps_transition(cur[1], cur[0]);
+    
     cur[1]->m_end = false;
-    return {new_start, new_end};
+    
+    m_master[0] = new_start;
+    m_master[1] = new_end;
+    return m_master;
 }
 
-vector<Node*> nfa::str_to_nfa (string s)
+vector<node*> nfa::str_to_nfa (string s)
 {
     if (s == "") {
         return build_eps_nfa();
     }
     
-    stack<vector<Node*>> st;
+    stack<vector<node*>> st;
     
     for (char c : s)
     {
         if (c == '*') {
-            vector<Node*> tmp = st.top();
+            vector<node*> tmp = st.top();
             st.pop();
             st.push(closure_op(tmp));
         }
         else if (c == '?') {
-            vector<Node*> tmp = st.top();
+            vector<node*> tmp = st.top();
             st.pop();
             st.push(zero_plus_op(tmp));
         }
         else if (c == '+') {
-            vector<Node*> tmp = st.top();
+            vector<node*> tmp = st.top();
             st.pop();
             st.push(one_plus_op(tmp));
         }
         else if (c == '|') {
-            vector<Node*> tmp_r = st.top();
+            vector<node*> tmp_r = st.top();
             st.pop();
-            vector<Node*> tmp_l = st.top();
+            vector<node*> tmp_l = st.top();
             st.pop();
             st.push(union_op(tmp_l, tmp_r));
         }
         else if (c == '.') {
-            vector<Node*> tmp_r = st.top();
+            vector<node*> tmp_r = st.top();
             st.pop();
-            vector<Node*> tmp_l = st.top();
+            vector<node*> tmp_l = st.top();
             st.pop();
             st.push(concat_op(tmp_l, tmp_r));
         }
@@ -147,7 +199,7 @@ vector<Node*> nfa::str_to_nfa (string s)
     return st.top();
 }
 
-void nfa::add_next_state (Node* state, vector<Node*>& next_states, unordered_set<Node*>& visited) {
+void nfa::add_next_state (node* state, vector<node*>& next_states, unordered_set<node*>& visited) {
     if (state->epsilon_edges.size()) {
         for (auto it = state->epsilon_edges.begin(); it != state->epsilon_edges.end(); it++) {
             if (visited.find(*it) == visited.end()) {
@@ -162,22 +214,22 @@ void nfa::add_next_state (Node* state, vector<Node*>& next_states, unordered_set
 }
 
 
-bool nfa::search (vector<Node*> nfa, string word) {
-    vector<Node*> current_states;
-    unordered_set<Node*> visited;
-    add_next_state(nfa[0], current_states, visited);
+bool nfa::search (string word) {
+    vector<node*> current_states;
+    unordered_set<node*> visited;
+    add_next_state(m_master[0], current_states, visited);
     for (char c : word) {
-        vector<Node*> next_states;
-        for (Node* state : current_states) {
-            Node* next_state = state->edges[c];
+        vector<node*> next_states;
+        for (node* state : current_states) {
+            node* next_state = state->edges[c];
             if (next_state) {
-                unordered_set<Node*> next_visited;
+                unordered_set<node*> next_visited;
                 add_next_state(next_state, next_states, next_visited);
             }
         }
         current_states = next_states;
     }
-    for (Node* n : current_states) {
+    for (node* n : current_states) {
         if (n->m_end == true) {
             return true;
         }
