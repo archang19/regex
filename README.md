@@ -16,4 +16,3 @@ Files Included:
 1. main.cpp
 2. nfa.cpp
 3. formatter.cpp
-4. html2text.py (from https://github.com/aaronsw/html2text)
