@@ -16,13 +16,11 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
     nfa a;
-    string exp = "(a|b)*c";
-    
-    vector<Node*> nfa = a.create_matcher(exp);
-    cout << a.search(nfa, "ac") << endl;
-    cout << a.search(nfa, "abc") << endl;
-    cout << a.search(nfa, "aabababbbc") << endl;
-    cout << a.search(nfa, "aaaab") << endl;
-    
+    string exp = "(c|d)*e";
+    vector<Node*> n = a.create_matcher(exp);
+    cout << a.search(n, "ce") << endl;
+    cout << a.search(n, "cde") << endl;
+    cout << a.search(n, "cccdddcde") << endl;
+    cout << a.search(n, "cdcdee") << endl;
     return 0;
 }
