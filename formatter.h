@@ -11,7 +11,6 @@
 
 #include <string>
 
-
 std::string to_post_fix (std::string exp);
 std::string insert_explicit_concat_operator(std::string exp);
 

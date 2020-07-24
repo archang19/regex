@@ -12,8 +12,6 @@
 using namespace std;
 
 
-
-
 nfa::nfa(string exp) {
     m_master.push_back(nullptr);
     m_master.push_back(nullptr);

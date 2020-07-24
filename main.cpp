@@ -39,11 +39,9 @@ int main(int argc, const char * argv[]) {
 
     // File operations here
     inFile >> to_search;
-    
     inFile.close();
     
     nfa a(exp);
-    
 
     if (a.search(to_search)) {
         cout << "Found match for: " << exp << endl;

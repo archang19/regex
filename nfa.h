@@ -14,8 +14,6 @@
 #include <vector>
 #include <string>
 
-
-
 struct node
 {
     node (bool end) {
@@ -26,17 +24,25 @@ struct node
     std::unordered_set<node*> epsilon_edges;
 };
 
+
 class nfa
 {
-    
 public:
     nfa(std::string exp);
     ~nfa();
+    bool search (std::string word);
+
+private:
+    std::vector<node*> m_nodes;
+    std::vector<node*> m_master;
+        
     void create_transition (node* source, node* destination, char transition);
     void create_eps_transition (node* source, node* destination);
+    
     std::vector<node*> create_matcher (std::string exp);
     std::vector<node*> build_eps_nfa ();
     std::vector<node*> build_nfa (char transition);
+    
     std::vector<node*> concat_op (std::vector<node*> one, std::vector<node*> two);
     std::vector<node*> union_op (std::vector<node*> one, std::vector<node*> two);
     std::vector<node*> closure_op (std::vector<node*> cur);
@@ -46,11 +52,6 @@ public:
     std::vector<node*> str_to_nfa (std::string s);
 
     void add_next_state (node* state, std::vector<node*>& next_states, std::unordered_set<node*>& visited);
-    bool search (std::string word);
-
-private:
-    std::vector<node*> m_nodes;
-    std::vector<node*> m_master;
 };
 
 #endif /* nfa_h */
